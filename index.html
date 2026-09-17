@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -60,7 +61,6 @@
       margin-bottom: 12px;
     }
 
-    /* Progress Bar */
     .progress-bar-container {
       display: flex;
       align-items: center;
@@ -90,7 +90,6 @@
       min-width: 45px;
     }
 
-    /* Step Views */
     .step-view {
       display: none;
     }
@@ -131,7 +130,6 @@
       box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
     }
 
-    /* Checkbox & Radio Groups */
     .option-group {
       display: flex;
       flex-direction: column;
@@ -159,7 +157,6 @@
       accent-color: var(--primary);
     }
 
-    /* Step 2 Cards */
     .mbti-card {
       background-color: #f8fafc;
       border: 1px solid var(--border);
@@ -198,7 +195,6 @@
       font-style: italic;
     }
 
-    /* Buttons */
     .btn-group {
       display: flex;
       gap: 12px;
@@ -234,7 +230,6 @@
       background-color: #d1d5db;
     }
 
-    /* Result View Components */
     .result-section {
       background-color: #fff;
       border: 1px solid var(--border);
@@ -305,7 +300,6 @@
       background-color: #fef2f2;
     }
 
-    /* Template Cards with Copy */
     .template-card {
       background-color: #f8fafc;
       border: 1px solid var(--border);
@@ -341,7 +335,6 @@
       background-color: #f3f4f6;
     }
 
-    /* Warning Box */
     .warning-box {
       background-color: var(--danger-bg);
       border: 1px solid var(--danger-border);
@@ -416,7 +409,7 @@
     </div>
 
     <div class="btn-group">
-      <button class="btn-primary" onclick="goToStep2()">다음 (상대 성향 확인)</button>
+      <button class="btn-primary" type="button" onclick="goToStep2()">다음 (상대 성향 확인)</button>
     </div>
   </div>
 
@@ -424,15 +417,13 @@
   <div class="step-view" id="step-2">
     <h2>STEP 2. 상대 MBTI 성향 (갈등 상황 특화)</h2>
     
-    <div id="mbti-card-container">
-      <!-- 동적 카드 삽입 -->
-    </div>
+    <div id="mbti-card-container"></div>
 
     <p class="disclaimer-text">MBTI는 참고용 지표입니다. 실제 사람은 유형만으로 설명되지 않습니다.</p>
 
     <div class="btn-group">
-      <button class="btn-secondary" onclick="goToStep(1)">이전</button>
-      <button class="btn-primary" onclick="goToStep(3)">다음 (상황 입력)</button>
+      <button class="btn-secondary" type="button" onclick="goToStep(1)">이전</button>
+      <button class="btn-primary" type="button" onclick="goToStep(3)">다음 (상황 입력)</button>
     </div>
   </div>
 
@@ -441,7 +432,7 @@
     <h2>STEP 3. 최근 반응 및 상황 입력</h2>
 
     <div class="form-group">
-      <label class="section-label">1. 상대의 반응 방식 (다중 선택)</label>
+      <label class="section-label">1. 상대의 반응 방식 (다중 선택 가능)</label>
       <div class="option-group">
         <label class="option-item"><input type="checkbox" name="reaction" value="DELAY"> 답장이 느려지거나 끊김</label>
         <label class="option-item"><input type="checkbox" name="reaction" value="SHORT"> 단답으로만 대답함</label>
@@ -454,7 +445,7 @@
     </div>
 
     <div class="form-group">
-      <label class="section-label">2. 상대가 사용한 말투 (다중 선택)</label>
+      <label class="section-label">2. 상대가 사용한 말투 (다중 선택 가능)</label>
       <div class="option-group">
         <label class="option-item"><input type="checkbox" name="tone" value="SHORT_ANS"> "ㅇㅇ", "알겠어" 같은 짧은 대답</label>
         <label class="option-item"><input type="checkbox" name="tone" value="DISMISS"> "됐어", "신경쓰지마" 식의 말</label>
@@ -483,8 +474,8 @@
     </div>
 
     <div class="btn-group">
-      <button class="btn-secondary" onclick="goToStep(2)">이전</button>
-      <button class="btn-primary" onclick="analyzeAndShowResult()">분석 결과 보기</button>
+      <button class="btn-secondary" type="button" onclick="goToStep(2)">이전</button>
+      <button class="btn-primary" type="button" id="analyze-btn" onclick="analyzeAndShowResult()">AI 속마음 분석하기</button>
     </div>
   </div>
 
@@ -492,7 +483,6 @@
   <div class="step-view" id="step-result">
     <h2>분석 결과 보고서</h2>
 
-    <!-- 안전 경고 메시지 영역 -->
     <div id="safety-warning-container"></div>
 
     <div id="analysis-content">
@@ -501,25 +491,21 @@
         <input type="text" id="target-name" placeholder="예: OO, OO씨" oninput="updateNameInTemplates()" style="margin-top: 4px; padding: 6px 10px;">
       </div>
 
-      <!-- 1. 추정 감정 -->
       <div class="result-section">
         <div class="result-title">1. 지금 상대의 감정 (추정)</div>
         <div id="emotions-output"></div>
       </div>
 
-      <!-- 2. 행동 이유 가설 -->
       <div class="result-section">
         <div class="result-title">2. 이렇게 행동하는 이유 (가설)</div>
         <ul class="result-list" id="reasons-output"></ul>
       </div>
 
-      <!-- 3. 성향 연결 -->
       <div class="result-section">
         <div class="result-title">3. 성향/관계와 연결해보면</div>
         <p id="mbti-connect-output" style="font-size: 0.95rem;"></p>
       </div>
 
-      <!-- 4. 대화 가이드 (Good / Bad) -->
       <div class="result-section">
         <div class="result-title">4. 지금 해야 할 행동 / 피해야 할 행동</div>
         <div style="margin-bottom: 12px;">
@@ -532,7 +518,6 @@
         </div>
       </div>
 
-      <!-- 5. 답장 템플릿 3종 -->
       <div class="result-section">
         <div class="result-title">5. 바로 보낼 수 있는 답장 템플릿</div>
         <div id="templates-output"></div>
@@ -544,17 +529,13 @@
     </p>
 
     <div class="btn-group">
-      <button class="btn-secondary" onclick="goToStep(3)">이전 입력 수정</button>
-      <button class="btn-primary" onclick="resetApp()">처음부터 다시하기</button>
+      <button class="btn-secondary" type="button" onclick="goToStep(3)">이전 입력 수정</button>
+      <button class="btn-primary" type="button" onclick="resetApp()">처음부터 다시하기</button>
     </div>
   </div>
 </div>
 
 <script>
-  /* ==========================================================================
-     데이터 정의 (MBTI 16개, 안전 키워드, 감정/이유/조언/답장 규칙 테이블)
-     ========================================================================== */
-
   const DANGER_KEYWORDS = [
     "죽어", "죽고 싶냐", "패버린다", "칼로", "살해", "폭력", "닥쳐", "신체적", 
     "가만안둬", "죽여버린다", "싸이코", "미친놈", "미친년", "X같네", "씨발", "병신"
@@ -675,7 +656,6 @@
     }
   };
 
-  // 3-3 원인 가설 데이터
   const CONTEXT_REASONS = {
     PROMISE: [
       "약속을 지키지 않은 행동으로 인해 상대는 '내가 우선순위에서 밀렸다'는 느낌과 신뢰 훼손을 겪었습니다.",
@@ -703,9 +683,8 @@
     ]
   };
 
-  // 감정 카테고리별 조언 및 답장 템플릿 DB
   const EMOTION_TEMPLATES = {
-    HURT: { // 서운함 / 상처
+    HURT: {
       do: [
         "상대의 서운했던 감정을 서둘러 부정하지 말고 '그렇게 느꼈을 수 있겠다'며 인정해 주기",
         "상대가 마음을 열고 이야기할 수 있도록 묵묵히 들어주는 시간을 갖기",
@@ -722,7 +701,7 @@
         space: "{이름}, 지금 내 말이 오해처럼 들리거나 부담될 수 있을 것 같아. 마음 편히 정리할 시간이 필요하면 천천히 이야기해줘. 기다릴게."
       }
     },
-    ANGRY: { // 분노 / 답답함
+    ANGRY: {
       do: [
         "변명이나 핑계를 대지 말고 문제의 핵심에 대해 솔직하고 명확하게 사과하기",
         "흥분한 상태에서는 같이 감정적으로 대응하지 않고 톤을 낮춰 차분하게 대화하기",
@@ -739,7 +718,7 @@
         space: "{이름}, 내가 실수한 부분이 명확해서 할 말이 없어. 지금 이야기하면 너에게 더 스트레스가 될 테니, 마음 좀 추스르면 언제든 연락줘."
       }
     },
-    EXHAUSTED: { // 지침 / 체념 / 회피
+    EXHAUSTED: {
       do: [
         "상대에게 당장 대답이나 해결책을 요구하지 말고 충분한 혼자만의 시간을 주기",
         "부담스럽지 않은 짧은 메시지로 존중과 기다림의 뜻만 전달하기",
@@ -756,7 +735,7 @@
         space: "{이름}, 지금은 혼자만의 시간이 필요한 때인 것 같아. 부담 갖지 말고 충분히 쉬고 마음 정리되면 편하게 연락해줘."
       }
     },
-    DEFENSIVE: { // 경계 / 방어 / 냉담
+    DEFENSIVE: {
       do: [
         "상대의 냉담함에 대립하지 않고 나지막하고 중립적인 어조 유지하기",
         "어떤 의도로 말을 했는지 오해를 풀 수 있도록 객관적인 사실만 짧게 전달하기",
@@ -775,12 +754,8 @@
     }
   };
 
-  /* ==========================================================================
-     상태 관리 & 화면 전환
-     ========================================================================== */
-
   let currentStep = 1;
-  let currentEmotionKey = "HURT"; // 기본 매칭 감정 카테고리
+  let currentEmotionKey = "HURT";
 
   function updateProgressBar(step) {
     const fill = document.getElementById('progress-fill');
@@ -791,7 +766,6 @@
       fill.style.width = (step * 33.33) + '%';
       text.innerText = step + ' / 3';
     } else {
-      // 결과 화면
       document.getElementById('progress-container').style.display = 'none';
     }
   }
@@ -809,33 +783,34 @@
     const cardContainer = document.getElementById('mbti-card-container');
 
     if (mbti === 'UNKNOWN') {
-      // MBTI 모름 선택 시 STEP 2 Skip -> STEP 3
       goToStep(3);
       return;
     }
 
     const data = MBTI_DATA[mbti];
-    cardContainer.innerHTML = `
-      <div class="mbti-card">
-        <h3>${data.name}</h3>
-        <div class="mbti-section">
-          <div class="mbti-section-title">🚨 화가 났을 때 주로 보이는 신호</div>
-          <div class="mbti-section-content">${data.signal}</div>
+    if (data) {
+      cardContainer.innerHTML = `
+        <div class="mbti-card">
+          <h3>${data.name}</h3>
+          <div class="mbti-section">
+            <div class="mbti-section-title">🚨 화가 났을 때 주로 보이는 신호</div>
+            <div class="mbti-section-content">${data.signal}</div>
+          </div>
+          <div class="mbti-section">
+            <div class="mbti-section-title">💥 스트레스를 받는 지점</div>
+            <div class="mbti-section-content">${data.stress}</div>
+          </div>
+          <div class="mbti-section">
+            <div class="mbti-section-title">🚫 대화할 때 피해야 할 방식</div>
+            <div class="mbti-section-content">${data.avoid}</div>
+          </div>
+          <div class="mbti-section">
+            <div class="mbti-section-title">🌱 회복에 도움이 되는 방식</div>
+            <div class="mbti-section-content">${data.recover}</div>
+          </div>
         </div>
-        <div class="mbti-section">
-          <div class="mbti-section-title">💥 스트레스를 받는 지점</div>
-          <div class="mbti-section-content">${data.stress}</div>
-        </div>
-        <div class="mbti-section">
-          <div class="mbti-section-title">🚫 대화할 때 피해야 할 방식</div>
-          <div class="mbti-section-content">${data.avoid}</div>
-        </div>
-        <div class="mbti-section">
-          <div class="mbti-section-title">🌱 회복에 도움이 되는 방식</div>
-          <div class="mbti-section-content">${data.recover}</div>
-        </div>
-      </div>
-    `;
+      `;
+    }
 
     goToStep(2);
   }
@@ -847,222 +822,231 @@
     document.getElementById('target-name').value = '';
     
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    document.querySelector('input[name="context"][value="PROMISE"]').checked = true;
+    const defaultRadio = document.querySelector('input[name="context"][value="PROMISE"]');
+    if(defaultRadio) defaultRadio.checked = true;
 
     goToStep(1);
   }
 
-  /* ==========================================================================
-     분석 엔진 및 결과 생성 Logic
-     ========================================================================== */
-
   function analyzeAndShowResult() {
-    // 1. 선택 데이터 수집
-    const mbti = document.getElementById('mbti-select').value;
-    const relation = document.getElementById('relation-select').value;
-    
-    const reactions = Array.from(document.querySelectorAll('input[name="reaction"]:checked')).map(el => el.value);
-    const tones = Array.from(document.querySelectorAll('input[name="tone"]:checked')).map(el => el.value);
-    const context = document.querySelector('input[name="context"]:checked').value;
-    const rawText = document.getElementById('raw-text').value;
+    try {
+      const mbti = document.getElementById('mbti-select').value;
+      const relation = document.getElementById('relation-select').value;
+      
+      const reactions = Array.from(document.querySelectorAll('input[name="reaction"]:checked')).map(el => el.value);
+      const tones = Array.from(document.querySelectorAll('input[name="tone"]:checked')).map(el => el.value);
+      
+      const selectedContext = document.querySelector('input[name="context"]:checked');
+      const context = selectedContext ? selectedContext.value : 'UNKNOWN';
+      const rawText = document.getElementById('raw-text').value || '';
 
-    // 2. 안전 장치 키워드 검사
-    const hasDangerKeyword = DANGER_KEYWORDS.some(kw => rawText.includes(kw));
-    const warningContainer = document.getElementById('safety-warning-container');
-    
-    if (hasDangerKeyword) {
-      warningContainer.innerHTML = `
-        <div class="warning-box">
-          ⚠️ <strong>주의 안내</strong><br>
-          입력하신 내용에는 일반적인 갈등을 넘어서는 표현이 포함되어 있을 수 있습니다. 
-          이런 상황은 대화 기술만으로 해결하기 어려울 수 있으니, 신뢰할 수 있는 사람이나 전문 상담기관과 상의해보시길 권합니다.
+      // 안전 장치 키워드 검사
+      const hasDangerKeyword = DANGER_KEYWORDS.some(kw => rawText.includes(kw));
+      const warningContainer = document.getElementById('safety-warning-container');
+      
+      if (hasDangerKeyword) {
+        warningContainer.innerHTML = `
+          <div class="warning-box">
+            ⚠️ <strong>주의 안내</strong><br>
+            입력하신 내용에는 일반적인 갈등을 넘어서는 표현이 포함되어 있을 수 있습니다. 
+            이런 상황은 대화 기술만으로 해결하기 어려울 수 있으니, 신뢰할 수 있는 사람이나 전문 상담기관과 상의해보시길 권합니다.
+          </div>
+        `;
+      } else {
+        warningContainer.innerHTML = '';
+      }
+
+      // 규칙 기반 분석
+      let emotions = [];
+      let mainCategory = "HURT";
+
+      const isCutOrDelay = reactions.includes("CUT_OFF") || reactions.includes("DELAY");
+      const isShortOrDismiss = tones.includes("SHORT_ANS") || tones.includes("DISMISS");
+      const isTalkativeOrAnger = reactions.includes("TALKATIVE") || tones.includes("DIRECT_ANGER");
+      const isApology = reactions.includes("APOLOGY");
+
+      if (isCutOrDelay && isShortOrDismiss) {
+        emotions = [
+          { name: "깊은 서운함", level: "높음" },
+          { name: "생각할 시간 필요(지침)", level: "높음" },
+          { name: "대화 회피 의도", level: "보통" }
+        ];
+        mainCategory = "EXHAUSTED";
+      } else if (isTalkativeOrAnger || tones.includes("PUNCTUATION")) {
+        emotions = [
+          { name: "직접적인 분노/답답함", level: "높음" },
+          { name: "억울함", level: "높음" },
+          { name: "즉각적 해명 요구", level: "보통" }
+        ];
+        mainCategory = "ANGRY";
+      } else if (tones.includes("FORMAL") || tones.includes("NO_EMOJI") || isShortOrDismiss) {
+        emotions = [
+          { name: "차가운 경계심", level: "높음" },
+          { name: "서운함", level: "높음" },
+          { name: "정서적 거리두기", level: "보통" }
+        ];
+        mainCategory = "DEFENSIVE";
+      } else if (isApology) {
+        emotions = [
+          { name: "불편함 감추기", level: "높음" },
+          { name: "체념/상황 종료 희망", level: "보통" },
+          { name: "미안함", level: "낮음" }
+        ];
+        mainCategory = "EXHAUSTED";
+      } else {
+        emotions = [
+          { name: "내색하지 않는 서운함", level: "높음" },
+          { name: "혼란스러움", level: "보통" },
+          { name: "상황 관망 중", level: "보통" }
+        ];
+        mainCategory = "HURT";
+      }
+
+      currentEmotionKey = mainCategory;
+
+      if (rawText.includes("됐어") || rawText.includes("신경써")) {
+        emotions[0].level = "높음";
+        if (!emotions.some(e => e.name.includes("마음 닫힘"))) {
+          emotions.push({ name: "일시적 마음 닫힘", level: "보통" });
+        }
+      } else if (rawText.includes("미안")) {
+        if (!emotions.some(e => e.name.includes("자책"))) {
+          emotions.push({ name: "방어적 자책", level: "보통" });
+        }
+      }
+
+      const emotionsHtml = `
+        <div class="tag-container">
+          ${emotions.map(e => {
+            let levelClass = 'medium';
+            if (e.level === '높음') levelClass = 'high';
+            if (e.level === '낮음') levelClass = 'low';
+            return `<span class="tag ${levelClass}">${e.name} (가능성: ${e.level})</span>`;
+          }).join('')}
         </div>
       `;
-    } else {
-      warningContainer.innerHTML = '';
-    }
+      document.getElementById('emotions-output').innerHTML = emotionsHtml;
 
-    // 3. 규칙 기반 분석 계산
+      const reasons = CONTEXT_REASONS[context] || CONTEXT_REASONS.UNKNOWN;
+      const contextLabels = {
+        PROMISE: "약속 불이행/지각",
+        IGNORE: "말 무시/끊음",
+        BUSY: "소홀함/무관심",
+        CLASH: "의견 충돌",
+        SUDDEN: "갑작스러운 변화",
+        UNKNOWN: "원인 불명"
+      };
 
-    // (1) 지금 상대의 감정 추정 (반응 + 말투 조합 규칙)
-    let emotions = [];
-    let mainCategory = "HURT"; // 조언/답장 매칭용 기본 카테고리
+      const reasonsHtml = reasons.map(r => `
+        <li>
+          ${r}
+          <span class="source-badge">선택한 [${contextLabels[context] || '상황'}] 관련</span>
+        </li>
+      `).join('');
+      document.getElementById('reasons-output').innerHTML = reasonsHtml;
 
-    const isCutOrDelay = reactions.includes("CUT_OFF") || reactions.includes("DELAY");
-    const isShortOrDismiss = tones.includes("SHORT_ANS") || tones.includes("DISMISS");
-    const isTalkativeOrAnger = reactions.includes("TALKATIVE") || tones.includes("DIRECT_ANGER");
-    const isApology = reactions.includes("APOLOGY");
-
-    if (isCutOrDelay && isShortOrDismiss) {
-      emotions = [
-        { name: "깊은 서운함", level: "높음" },
-        { name: "생각할 시간 필요(지침)", level: "높음" },
-        { name: "대화 회피 의도", level: "보통" }
-      ];
-      mainCategory = "EXHAUSTED";
-    } else if (isTalkativeOrAnger || tones.includes("PUNCTUATION")) {
-      emotions = [
-        { name: "직접적인 분노/답답함", level: "높음" },
-        { name: "억울함", level: "높음" },
-        { name: "즉각적 해명 요구", level: "보통" }
-      ];
-      mainCategory = "ANGRY";
-    } else if (tones.includes("FORMAL") || tones.includes("NO_EMOJI") || isShortOrDismiss) {
-      emotions = [
-        { name: "차가운 경계심", level: "높음" },
-        { name: "서운함", level: "높음" },
-        { name: "정서적 거리두기", level: "보통" }
-      ];
-      mainCategory = "DEFENSIVE";
-    } else if (isApology) {
-      emotions = [
-        { name: "불편함 감추기", level: "높음" },
-        { name: "체념/상황 종료 희망", level: "보통" },
-        { name: "미안함", level: "낮음" }
-      ];
-      mainCategory = "EXHAUSTED";
-    } else {
-      // Fallback 기본값
-      emotions = [
-        { name: "내색하지 않는 서운함", level: "높음" },
-        { name: "혼란스러움", level: "보통" },
-        { name: "상황 관망 중", level: "보통" }
-      ];
-      mainCategory = "HURT";
-    }
-
-    currentEmotionKey = mainCategory; // Global 상태 저장 (이름 변경 시 재활용)
-
-    // 원문 키워드 보조 매칭
-    if (rawText.includes("됐어") || rawText.includes("신경써")) {
-      emotions[0].level = "높음";
-      if (!emotions.some(e => e.name.includes("마음 닫힘"))) {
-        emotions.push({ name: "일시적 마음 닫힘", level: "보통" });
+      let mbtiConnectText = "";
+      if (mbti !== 'UNKNOWN' && MBTI_DATA[mbti]) {
+        const targetMbti = MBTI_DATA[mbti];
+        mbtiConnectText = `
+          상대는 <strong>${targetMbti.name}</strong> 성향입니다. 
+          이 유형은 갈등 시 <em>"${targetMbti.stress}"</em> 상황에서 큰 스트레스를 받으며, 
+          주로 <em>"${targetMbti.signal}"</em> 행동을 보입니다. 
+          현재 상대의 냉담함이나 반응 축소는 해당 성향 특유의 방어 메커니즘이 작동한 결과일 수 있습니다.
+        `;
+      } else {
+        mbtiConnectText = `
+          상대방과의 관계가 <strong>[${relation}]</strong>임을 고려할 때, 
+          소통 과정에서 쌓인 서운함을 즉시 표현하기보다 은연중에 미묘한 반응 변화(단답, 연락 지연 등)로 거리를 두는 방식일 수 있습니다. 
+          관계의 친밀도와 상관없이 상대의 감정적 안전지대를 확보해 주는 것이 우선입니다.
+        `;
       }
-    } else if (rawText.includes("미안")) {
-      if (!emotions.some(e => e.name.includes("자책"))) {
-        emotions.push({ name: "방어적 자책", level: "보통" });
-      }
+      document.getElementById('mbti-connect-output').innerHTML = mbtiConnectText;
+
+      const templateData = EMOTION_TEMPLATES[mainCategory];
+      
+      document.getElementById('do-output').innerHTML = templateData.do.map(item => `
+        <div class="action-box">✓ ${item}</div>
+      `).join('');
+
+      document.getElementById('dont-output').innerHTML = templateData.dont.map(item => `
+        <div class="action-box avoid">✕ ${item}</div>
+      `).join('');
+
+      updateNameInTemplates();
+
+      document.querySelectorAll('.step-view').forEach(view => view.classList.remove('active'));
+      document.getElementById('step-result').classList.add('active');
+      updateProgressBar(4);
+      window.scrollTo(0, 0);
+
+    } catch (error) {
+      console.error("분석 중 오류 발생:", error);
+      alert("분석을 진행하는 도중 오류가 발생했습니다. 브라우저 창을 새로고침 후 다시 시도해 주세요.");
     }
-
-    // 감정 HTML 출력
-    const emotionsHtml = `
-      <div class="tag-container">
-        ${emotions.map(e => {
-          let levelClass = 'medium';
-          if (e.level === '높음') levelClass = 'high';
-          if (e.level === '낮음') levelClass = 'low';
-          return `<span class="tag ${levelClass}">${e.name} (가능성: ${e.level})</span>`;
-        }).join('')}
-      </div>
-    `;
-    document.getElementById('emotions-output').innerHTML = emotionsHtml;
-
-    // (2) 행동 이유 가설 (STEP 3-3 선택지 연결)
-    const reasons = CONTEXT_REASONS[context] || CONTEXT_REASONS.UNKNOWN;
-    const contextLabels = {
-      PROMISE: "약속 불이행/지각",
-      IGNORE: "말 무시/끊음",
-      BUSY: "소홀함/무관심",
-      CLASH: "의견 충돌",
-      SUDDEN: "갑작스러운 변화",
-      UNKNOWN: "원인 불명"
-    };
-
-    const reasonsHtml = reasons.map(r => `
-      <li>
-        ${r}
-        <span class="source-badge">선택한 [${contextLabels[context]}] 관련</span>
-      </li>
-    `).join('');
-    document.getElementById('reasons-output').innerHTML = reasonsHtml;
-
-    // (3) 성향/관계 연결
-    let mbtiConnectText = "";
-    if (mbti !== 'UNKNOWN' && MBTI_DATA[mbti]) {
-      const targetMbti = MBTI_DATA[mbti];
-      mbtiConnectText = `
-        상대는 <strong>${targetMbti.name}</strong> 성향입니다. 
-        이 유형은 갈등 시 <em>"${targetMbti.stress}"</em> 상황에서 큰 스트레스를 받으며, 
-        주로 <em>"${targetMbti.signal}"</em> 행동을 보입니다. 
-        현재 상대의 냉담함이나 반응 축소는 해당 성향 특유의 방어 메커니즘이 작동한 결과일 수 있습니다.
-      `;
-    } else {
-      mbtiConnectText = `
-        상대방과의 관계가 <strong>[${relation}]</strong>임을 고려할 때, 
-        소통 과정에서 쌓인 서운함을 즉시 표현하기보다 은연중에 미묘한 반응 변화(단답, 연락 지연 등)로 거리를 두는 방식일 수 있습니다. 
-        관계의 친밀도와 상관없이 상대의 감정적 안전지대를 확보해 주는 것이 우선입니다.
-      `;
-    }
-    document.getElementById('mbti-connect-output').innerHTML = mbtiConnectText;
-
-    // (4) 해야 할 것 / 피해야 할 것
-    const templateData = EMOTION_TEMPLATES[mainCategory];
-    
-    document.getElementById('do-output').innerHTML = templateData.do.map(item => `
-      <div class="action-box">✓ ${item}</div>
-    `).join('');
-
-    document.getElementById('dont-output').innerHTML = templateData.dont.map(item => `
-      <div class="action-box avoid">✕ ${item}</div>
-    `).join('');
-
-    // (5) 답장 템플릿 출력
-    updateNameInTemplates();
-
-    // 결과 화면으로 이동
-    document.querySelectorAll('.step-view').forEach(view => view.classList.remove('active'));
-    document.getElementById('step-result').classList.add('active');
-    updateProgressBar(4);
-    window.scrollTo(0, 0);
   }
 
-  // 상대방 이름 입력 시 템플릿 실시간 갱신
   function updateNameInTemplates() {
-    const rawName = document.getElementById('target-name').value.trim();
+    const targetNameInput = document.getElementById('target-name');
+    const rawName = targetNameInput ? targetNameInput.value.trim() : '';
     const name = rawName ? rawName : '상대방';
-    const templates = EMOTION_TEMPLATES[currentEmotionKey].templates;
+    
+    if (EMOTION_TEMPLATES[currentEmotionKey]) {
+      const templates = EMOTION_TEMPLATES[currentEmotionKey].templates;
+      const templatesHtml = `
+        <div class="template-card">
+          <div class="template-type">1. 사과 · 인정형</div>
+          <div class="template-text" id="tmpl-1">${templates.apology.replace(/{이름}/g, name)}</div>
+          <button class="btn-copy" type="button" onclick="copyTemplate('tmpl-1')">문구 복사</button>
+        </div>
+        <div class="template-card">
+          <div class="template-type">2. 상태 확인형</div>
+          <div class="template-text" id="tmpl-2">${templates.check.replace(/{이름}/g, name)}</div>
+          <button class="btn-copy" type="button" onclick="copyTemplate('tmpl-2')">문구 복사</button>
+        </div>
+        <div class="template-card">
+          <div class="template-type">3. 여유를 주는 형</div>
+          <div class="template-text" id="tmpl-3">${templates.space.replace(/{이름}/g, name)}</div>
+          <button class="btn-copy" type="button" onclick="copyTemplate('tmpl-3')">문구 복사</button>
+        </div>
+      `;
 
-    const templatesHtml = `
-      <div class="template-card">
-        <div class="template-type">1. 사과 · 인정형</div>
-        <div class="template-text" id="tmpl-1">${templates.apology.replace(/{이름}/g, name)}</div>
-        <button class="btn-copy" onclick="copyTemplate('tmpl-1')">문구 복사</button>
-      </div>
-      <div class="template-card">
-        <div class="template-type">2. 상태 확인형</div>
-        <div class="template-text" id="tmpl-2">${templates.check.replace(/{이름}/g, name)}</div>
-        <button class="btn-copy" onclick="copyTemplate('tmpl-2')">문구 복사</button>
-      </div>
-      <div class="template-card">
-        <div class="template-type">3. 여유를 주는 형</div>
-        <div class="template-text" id="tmpl-3">${templates.space.replace(/{이름}/g, name)}</div>
-        <button class="btn-copy" onclick="copyTemplate('tmpl-3')">문구 복사</button>
-      </div>
-    `;
-
-    document.getElementById('templates-output').innerHTML = templatesHtml;
+      document.getElementById('templates-output').innerHTML = templatesHtml;
+    }
   }
 
   function copyTemplate(elementId) {
-    const text = document.getElementById(elementId).innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('클립보드에 복사되었습니다.');
-    }).catch(() => {
-      // Fallback for older browsers
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const text = el.innerText;
+    
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('클립보드에 복사되었습니다.');
+      }).catch(() => {
+        fallbackCopy(text);
+      });
+    } else {
+      fallbackCopy(text);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
       document.execCommand('copy');
-      document.body.removeChild(textarea);
       alert('클립보드에 복사되었습니다.');
-    });
+    } catch (err) {
+      alert('복사에 실패했습니다. 직접 드래그하여 복사해 주세요.');
+    }
+    document.body.removeChild(textarea);
   }
 </script>
 </body>
-</html>
-            
+</html>            
             
             
             
