@@ -1,137 +1,870 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>상대 속마음 분석기</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-    body { background: #f3f4f6; padding: 20px; color: #111827; }
-    .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    h1 { font-size: 1.25rem; color: #4f46e5; margin-bottom: 20px; text-align: center; }
-    .form-group { margin-bottom: 16px; }
-    label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.9rem; }
-    select, input, textarea { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.9rem; }
-    .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
-    .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-    .checkbox-item input { width: 16px; height: 16px; }
-    .btn-submit { width: 100%; padding: 14px; background: #4f46e5; color: white; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .btn-submit:hover { background: #4338ca; }
-    .btn-submit:active { background: #3730a3; }
-    #result-area { display: none; margin-top: 24px; padding-top: 20px; border-top: 2px dashed #e5e7eb; }
-    .result-box { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
-    .result-title { font-weight: bold; color: #4f46e5; margin-bottom: 8px; }
-    .tag { display: inline-block; background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-right: 4px; }
-    .template-box { background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; font-size: 0.9rem; margin-top: 6px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>마음신호 — 상대의 마음을 읽는 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cursor-heart: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='28'%20height='28'%20viewBox='0%200%2028%2028'%3E%3Cpath%20d='M14%2025s-11-7-11-14.5C3%206%206%203%209.5%203c2%200%203.8%201.1%204.5%202.8C14.7%204.1%2016.5%203%2018.5%203%2022%203%2025%206%2025%2010.5%2025%2018%2014%2025%2014%2025z'%20fill='%23FF8FA3'%20stroke='white'%20stroke-width='1.2'/%3E%3C/svg%3E") 14 14, auto;
+  --bg:#FFF8F4; --surface:#FFFFFF; --border:#F4E5DE;
+  --ink:#3D3436; --ink-soft:#96888B;
+  --pink:#FF8FA3; --pink-bg:#FFEDF1;
+  --blue:#7C93FF; --blue-bg:#EEF1FF;
+  --mint:#4FBF9F; --mint-bg:#E8F8F2;
+  --peach:#FF9F5A; --peach-bg:#FFF1E4;
+  --warn:#FF7B72; --warn-bg:#FFF1EE;
+  --radius:20px;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#221E20; --surface:#2C2729; --border:#3D3639;
+    --ink:#F3ECEC; --ink-soft:#B5A8AB;
+    --pink-bg:#3A2830; --blue-bg:#262B3D; --mint-bg:#1F3630; --peach-bg:#3A2C1E; --warn-bg:#3A2624;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#221E20; --surface:#2C2729; --border:#3D3639;
+  --ink:#F3ECEC; --ink-soft:#B5A8AB;
+  --pink-bg:#3A2830; --blue-bg:#262B3D; --mint-bg:#1F3630; --peach-bg:#3A2C1E; --warn-bg:#3A2624;
+}
+*{box-sizing:border-box; cursor:var(--cursor-heart);}
+html{scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:'Noto Sans KR',sans-serif; min-height:100%; cursor:var(--cursor-heart);}
+button, a, input, textarea, .dex-head, .sample-card, .hist-item, .opt-btn, .mbti-btn, .pill, label{cursor:var(--cursor-heart);}
+.btn-primary:disabled{cursor:not-allowed;}
+.wrap{max-width:640px; margin:0 auto; padding:22px 20px 70px;}
+.brand{font-family:'Jua',sans-serif; font-size:22px; color:var(--pink); cursor:pointer; flex-shrink:0;}
+header.top{display:flex; flex-direction:column; gap:10px; margin-bottom:20px;}
+.navpills{display:flex; flex-wrap:wrap; gap:6px;}
+.pill{background:var(--surface); border:1px solid var(--border); color:var(--ink-soft); padding:7px 12px; border-radius:999px; font-size:12px; cursor:pointer; font-weight:500; white-space:nowrap;}
+.pill:hover{border-color:var(--pink); color:var(--pink);}
+.pill.on{background:var(--pink); color:#fff; border-color:var(--pink);}
+
+.screen{display:none;}
+.screen.active{display:block;}
+
+.hero-card{background:linear-gradient(160deg, var(--pink-bg), var(--surface) 70%); border-radius:28px; padding:32px 26px; border:1px solid var(--border); text-align:center;}
+.hero-emoji{font-size:40px; margin-bottom:6px;}
+h1.hero{font-family:'Jua',sans-serif; font-size:26px; font-weight:400; line-height:1.5; margin:0 0 10px; color:var(--ink);}
+p.sub{color:var(--ink-soft); font-size:14.5px; margin:0 0 22px; line-height:1.65;}
+.cta-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+.btn-round{background:var(--pink); color:#fff; border:none; padding:13px 22px; border-radius:999px; font-family:'Noto Sans KR',sans-serif; font-weight:700; font-size:14px; cursor:pointer;}
+.btn-round.alt{background:var(--blue);}
+.feature-row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:22px;}
+.feature{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:14px 8px; text-align:center;}
+.feature .fe{font-size:20px; display:block; margin-bottom:4px;}
+.feature .ft{font-size:12px; color:var(--ink-soft); font-weight:500;}
+.guide-link{margin-top:18px; text-align:center;}
+.guide-link button{background:none; border:none; color:var(--blue); font-weight:700; font-size:13.5px; cursor:pointer; text-decoration:underline;}
+
+.howcard, .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:26px 24px; margin-bottom:12px;}
+.how-step{display:flex; gap:14px; padding:14px 0; border-bottom:1px solid var(--border);}
+.how-step:last-child{border-bottom:none;}
+.how-num{width:34px; height:34px; border-radius:50%; background:var(--blue-bg); color:var(--blue); font-family:'Jua',sans-serif; font-size:15px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+.how-txt h4{margin:0 0 4px; font-size:14.5px; font-weight:700;}
+.how-txt p{margin:0; font-size:13.5px; color:var(--ink-soft);}
+
+.steps{display:flex; gap:6px; margin-bottom:18px;}
+.step-dot{flex:1; height:4px; border-radius:3px; background:var(--border);}
+.step-dot.active{background:var(--pink);}
+
+.opt-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px;}
+.opt-btn{padding:14px 8px; border-radius:14px; border:1px solid var(--border); background:var(--bg); color:var(--ink); font-weight:700; font-size:13.5px; cursor:pointer; transition:transform .12s ease;}
+.opt-btn:active{transform:scale(0.96);}
+.opt-btn.selected{background:var(--pink); color:#fff; border-color:var(--pink);}
+input[type="text"].plain-input{width:100%; padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:var(--bg); color:var(--ink); font-family:'Noto Sans KR',sans-serif; font-size:14px;}
+
+.mbti-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+.mbti-btn{padding:13px 4px; border-radius:14px; border:1px solid var(--border); background:var(--bg); color:var(--ink); font-weight:700; font-size:13px; cursor:pointer; transition:transform .12s ease;}
+.mbti-btn:active{transform:scale(0.94);}
+.mbti-btn.selected{color:#fff; border-color:transparent;}
+.mbti-btn[data-g="NF"].selected{background:var(--pink);}
+.mbti-btn[data-g="NT"].selected{background:var(--blue);}
+.mbti-btn[data-g="SJ"].selected{background:var(--mint);}
+.mbti-btn[data-g="SP"].selected{background:var(--peach);}
+.legend{display:flex; gap:12px; flex-wrap:wrap; margin:14px 0 4px; font-size:12px; color:var(--ink-soft);}
+.legend span{display:inline-flex; align-items:center; gap:5px;}
+.sw{width:9px; height:9px; border-radius:50%;}
+
+.trait-box{border-radius:14px; padding:16px 18px; margin:14px 0;}
+.trait-box h3{margin:0 0 6px; font-size:14.5px; font-family:'Jua',sans-serif; font-weight:400;}
+.trait-box p{margin:0; font-size:13.5px; color:var(--ink-soft); line-height:1.6;}
+
+textarea{width:100%; min-height:130px; border-radius:16px; border:1px solid var(--border); background:var(--bg); color:var(--ink); font-family:'Noto Sans KR',sans-serif; font-size:14px; padding:14px; resize:vertical;}
+textarea:focus, .mbti-btn:focus-visible, .opt-btn:focus-visible, button:focus-visible{outline:2px solid var(--pink); outline-offset:2px;}
+
+.voice-box{border:1.5px dashed var(--border); border-radius:16px; padding:26px 20px; text-align:center;}
+.voice-status{font-size:13.5px; color:var(--ink-soft); margin:10px 0;}
+.privacy-note{font-size:12px; color:var(--ink-soft); margin-top:14px;}
+
+.btnrow{display:flex; gap:10px; margin-top:20px;}
+.btn{flex:1; padding:13px 18px; border-radius:999px; border:none; font-family:'Noto Sans KR',sans-serif; font-weight:700; font-size:14px; cursor:pointer;}
+.btn-primary{background:var(--pink); color:#fff;}
+.btn-primary:disabled{opacity:.35; cursor:not-allowed;}
+.btn-ghost{background:none; border:1px solid var(--border); color:var(--ink);}
+
+.result-section{margin-bottom:18px;}
+.result-section h3{font-family:'Jua',sans-serif; font-weight:400; font-size:15.5px; margin:0 0 8px; display:flex; align-items:center; gap:7px;}
+.result-section p, .result-section li{font-size:14px; color:var(--ink); margin:0 0 6px; line-height:1.6;}
+.result-section ul{margin:0; padding-left:18px;}
+.strategy-card{background:var(--pink-bg); border-radius:14px; padding:14px 16px; margin-bottom:10px;}
+.strategy-label{font-weight:700; font-size:13px; color:var(--ink); margin-bottom:5px; display:flex; align-items:center; gap:5px;}
+.strategy-line{font-size:13.5px; color:var(--ink);}
+.divider{height:1px; background:var(--border); margin:18px 0;}
+.tag-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px;}
+.tag{background:var(--blue-bg); color:var(--blue); font-size:12px; font-weight:700; padding:5px 11px; border-radius:999px;}
+.tag.relation{background:var(--mint-bg); color:var(--mint);}
+
+.hist-item{border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:10px; cursor:pointer;}
+.hist-item:hover{border-color:var(--pink);}
+.hist-meta{display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); margin-bottom:4px;}
+.hist-snip{font-size:13.5px; color:var(--ink);}
+.empty{color:var(--ink-soft); font-size:14px; text-align:center; padding:40px 0;}
+
+.dex-item{border:1px solid var(--border); border-radius:14px; margin-bottom:8px; overflow:hidden;}
+.dex-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; cursor:pointer; font-weight:700; font-size:14px;}
+.dex-body{display:none; padding:0 16px 16px; font-size:13px; color:var(--ink-soft); line-height:1.6;}
+.dex-item.open .dex-body{display:block;}
+.dex-arrow{transition:transform .15s ease;}
+.dex-item.open .dex-arrow{transform:rotate(180deg);}
+
+.faq-item{border-bottom:1px solid var(--border); padding:14px 0;}
+.faq-item:last-child{border-bottom:none;}
+.faq-q{font-weight:700; font-size:14px; margin-bottom:6px;}
+.faq-a{font-size:13.5px; color:var(--ink-soft); line-height:1.6;}
+
+.sample-card{border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:12px; cursor:pointer;}
+.sample-card:hover{border-color:var(--pink);}
+.sample-tags{display:flex; gap:6px; margin-bottom:8px;}
+.sample-title{font-weight:700; font-size:14.5px; margin-bottom:4px;}
+.sample-desc{font-size:13px; color:var(--ink-soft);}
+
+.check-item{display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid var(--border);}
+.check-item:last-child{border-bottom:none;}
+.check-item input{width:20px; height:20px; margin-top:2px; accent-color:var(--pink); flex-shrink:0;}
+.check-item label{font-size:14px; line-height:1.6; cursor:pointer;}
+.check-item.checked label{color:var(--ink-soft); text-decoration:line-through;}
+</style>
 </head>
 <body>
-
-<div class="container">
-  <h1>상대 속마음 & 대화 분석기</h1>
-
-  <div class="form-group">
-    <label for="mbti">상대방 MBTI</label>
-    <select id="mbti">
-      <option value="UNKNOWN">잘 모르겠음</option>
-      <option value="ISTJ">ISTJ</option><option value="ISFJ">ISFJ</option>
-      <option value="INFJ">INFJ</option><option value="INTJ">INTJ</option>
-      <option value="ISTP">ISTP</option><option value="ISFP">ISFP</option>
-      <option value="INFP">INFP</option><option value="INTP">INTP</option>
-      <option value="ESTP">ESTP</option><option value="ESFP">ESFP</option>
-      <option value="ENFP">ENFP</option><option value="ENTP">ENTP</option>
-      <option value="ESTJ">ESTJ</option><option value="ESFJ">ESFJ</option>
-      <option value="ENFJ">ENFJ</option><option value="ENTJ">ENTJ</option>
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label>상대의 현재 반응 (다중 선택 가능)</label>
-    <div class="checkbox-group">
-      <label class="checkbox-item"><input type="checkbox" name="reaction" value="DELAY"> 답장이 느리거나 읽고 씹음</label>
-      <label class="checkbox-item"><input type="checkbox" name="reaction" value="SHORT"> 단답형 대답만 함</label>
-      <label class="checkbox-item"><input type="checkbox" name="reaction" value="COLD"> 말투가 정색/차가워짐</label>
+<div class="wrap">
+  <header class="top">
+    <div class="brand" id="logoHome">마음신호 💌</div>
+    <div class="navpills">
+      <button class="pill" id="navHow">이용방법</button>
+      <button class="pill" id="navRelGuide">관계가이드</button>
+      <button class="pill" id="navDex">MBTI 도감</button>
+      <button class="pill" id="navDict">감정사전</button>
+      <button class="pill" id="navChecklist">체크리스트</button>
+      <button class="pill" id="navSample">예시보기</button>
+      <button class="pill" id="navTips">소통꿀팁</button>
+      <button class="pill" id="navFaq">FAQ</button>
+      <button class="pill" id="navHist">기록</button>
+      <button class="pill" id="navAbout">소개</button>
     </div>
-  </div>
+  </header>
 
-  <div class="form-group">
-    <label for="rawText">상대가 보낸 메시지 원문 (선택 입력)</label>
-    <textarea id="rawText" rows="3" placeholder="예: 됐어, 신경 쓰지 마"></textarea>
-  </div>
-
-  <!-- 메인 클릭 버튼 -->
-  <button type="button" class="btn-submit" id="main-analyze-btn">AI 속마음 분석하기</button>
-
-  <!-- 결과 영역 -->
-  <div id="result-area">
-    <div class="result-box">
-      <div class="result-title">1. 추정되는 주요 감정</div>
-      <div id="emotion-res"><span class="tag">서운함 / 마음 닫힘</span></div>
-    </div>
-
-    <div class="result-box">
-      <div class="result-title">2. 속마음 분석 요약</div>
-      <p id="analysis-res" style="font-size:0.9rem; line-height:1.5;">
-        상대는 현재 대화를 지속하기보다 감정을 정리할 시간이 필요한 상태입니다.
-      </p>
-    </div>
-
-    <div class="result-box">
-      <div class="result-title">3. 바로 보낼 추천 답장 템플릿</div>
-      <div class="template-box" id="template-res">
-        "아까 일로 마음 불편했을 텐데 미안해. 편할 때 천천히 답장해줘."
+  <!-- HOME -->
+  <section class="screen active" id="s-home">
+    <div class="hero-card">
+      <div class="hero-emoji">🫧</div>
+      <h1 class="hero">그 사람, 왜 그런 걸까요?</h1>
+      <p class="sub">관계, MBTI, 지금 상황을 알려주면<br>기분과 원인, 어떻게 다가가면 좋을지 여러 방향으로 알려드려요.</p>
+      <div class="cta-row">
+        <button class="btn-round" id="startTextBtn">💬 텍스트로 분석하기</button>
+        <button class="btn-round alt" id="startVoiceBtn">🎧 음성·영상 파일로 분석하기</button>
       </div>
     </div>
-  </div>
+    <div class="feature-row">
+      <div class="feature"><span class="fe">👥</span><span class="ft">관계별<br>맞춤 조언</span></div>
+      <div class="feature"><span class="fe">🧩</span><span class="ft">MBTI 기반<br>성향 분석</span></div>
+      <div class="feature"><span class="fe">💬</span><span class="ft">답장 전략<br>3가지 제안</span></div>
+    </div>
+    <div class="guide-link"><button id="howLink">어떻게 쓰는 건가요?</button></div>
+  </section>
+
+  <!-- 이용방법 -->
+  <section class="screen" id="s-how">
+    <div class="howcard">
+      <h1 class="hero" style="text-align:left; font-size:22px;">이용 방법</h1>
+      <div class="how-step"><div class="how-num">1</div><div class="how-txt"><h4>관계 선택</h4><p>연인·친구·부모님·직장 상사 등 상대와의 관계를 먼저 알려주세요.</p></div></div>
+      <div class="how-step"><div class="how-num">2</div><div class="how-txt"><h4>상대 MBTI 선택</h4><p>정확히 몰라도 평소 성향에 가까운 유형을 골라주세요.</p></div></div>
+      <div class="how-step"><div class="how-num">3</div><div class="how-txt"><h4>성향 확인</h4><p>그 유형이 갈등 상황에서 보이는 특징을 먼저 안내해드려요.</p></div></div>
+      <div class="how-step"><div class="how-num">4</div><div class="how-txt"><h4>텍스트 또는 음성·영상 파일 업로드</h4><p>카톡 내용을 적거나, 상대 목소리가 담긴 음성·영상 파일을 올려주세요.</p></div></div>
+      <div class="how-step"><div class="how-num">5</div><div class="how-txt"><h4>가이드 받기</h4><p>감정·원인·행동 가이드와 함께, 답장 전략을 3가지 방향으로 제안해드려요.</p></div></div>
+    </div>
+    <div class="howcard">
+      <h4 style="margin:0 0 8px; font-size:14.5px;">🎧 음성·영상 분석은 이렇게 작동해요</h4>
+      <p class="sub" style="margin:0;">진짜 AI 감정인식이 아니라, 파일 속 소리의 <b>크기·높낮이·떨림 정도</b>를 이 브라우저 안에서 계산해서 대략적인 톤을 추정하는 참고용 기능이에요. mp3·wav·m4a 같은 음성 파일과 mp4 등 영상 파일을 지원하고(브라우저에 따라 일부 형식은 지원되지 않을 수 있어요), 파일은 서버로 전송되지 않아요.</p>
+    </div>
+  </section>
+
+  <!-- 관계가이드 -->
+  <section class="screen" id="s-relguide">
+    <div class="card">
+      <h1 class="hero" style="font-size:22px; text-align:left;">관계별 가이드</h1>
+      <p class="sub">관계마다 갈등이 생기는 지점과 다가가는 방식이 달라요.</p>
+      <div id="relGuideList"></div>
+    </div>
+  </section>
+
+  <!-- MBTI 도감 -->
+  <section class="screen" id="s-dex">
+    <div class="card">
+      <h1 class="hero" style="font-size:22px; text-align:left;">MBTI 도감</h1>
+      <p class="sub">유형을 눌러서 갈등 성향과 화해 신호를 미리 살펴보세요.</p>
+      <div id="dexList"></div>
+    </div>
+  </section>
+
+  <!-- 감정사전 -->
+  <section class="screen" id="s-dict">
+    <div class="card">
+      <h1 class="hero" style="font-size:22px; text-align:left;">감정 사전</h1>
+      <p class="sub">분석 결과에 등장하는 4가지 감정 카테고리를 더 자세히 알아보세요.</p>
+      <div id="dictList"></div>
+    </div>
+  </section>
+
+  <!-- 체크리스트 -->
+  <section class="screen" id="s-checklist">
+    <div class="card">
+      <h1 class="hero" style="font-size:22px; text-align:left;">대화 전 체크리스트</h1>
+      <p class="sub">상대에게 다가가기 전, 나 자신부터 잠깐 점검해보세요.</p>
+      <div id="checklistBody"></div>
+    </div>
+  </section>
+
+  <!-- 예시보기 -->
+  <section class="screen" id="s-sample">
+    <div class="card">
+      <h1 class="hero" style="font-size:22px; text-align:left;">예시로 보기</h1>
+      <p class="sub">실제로 입력하지 않아도, 결과가 어떻게 나오는지 미리 볼 수 있어요. 카드를 눌러보세요.</p>
+      <div id="sampleList"></div>
+    </div>
+  </section>
+
+  <!-- 소통 꿀팁 -->
+  <section class="screen" id="s-tips">
+    <div class="card">
+      <h1 class="hero" style="font-size:22px; text-align:left;">소통 꿀팁</h1>
+      <p class="sub">관계와 상관없이 갈등 대화 전반에 도움 되는 기본기예요.</p>
+      <div class="trait-box" style="background:var(--blue-bg);"><h3>💌 나-전달법</h3><p>"너는 왜 맨날..." 대신 "나는 ~할 때 속상해" 처럼 내 감정을 주어로 말하면 상대가 덜 방어적이게 돼요.</p></div>
+      <div class="trait-box" style="background:var(--mint-bg);"><h3>👂 적극적 경청</h3><p>상대 말을 끊지 않고 "그랬구나", "많이 힘들었겠다" 처럼 들은 걸 그대로 되짚어주면 이해받는다고 느껴요.</p></div>
+      <div class="trait-box" style="background:var(--peach-bg);"><h3>⏸️ 타임아웃 요청하기</h3><p>감정이 격해질 땐 "잠깐 진정하고 30분 뒤에 다시 얘기하자" 처럼 대화를 잠시 멈추는 것도 좋은 방법이에요.</p></div>
+      <div class="trait-box" style="background:var(--pink-bg);"><h3>🎁 사과의 3요소</h3><p>① 무엇을 잘못했는지 구체적으로 인정 ② 상대가 느꼈을 감정 언급 ③ 앞으로 달라질 점 약속 — 이 세 가지가 담긴 사과가 가장 잘 전달돼요.</p></div>
+      <div class="trait-box" style="background:var(--blue-bg);"><h3>🌤️ 화해 후 마무리</h3><p>화해했다고 바로 예전처럼 행동하기보다, "얘기해줘서 고마워" 한마디로 대화를 따뜻하게 마무리해보세요.</p></div>
+    </div>
+  </section>
+
+  <!-- 소개 -->
+  <section class="screen" id="s-about">
+    <div class="howcard">
+      <h1 class="hero" style="text-align:left; font-size:22px;">마음신호 소개</h1>
+      <p class="sub" style="margin-bottom:14px;">마음신호는 관계에서 오는 사소한 오해와 갈등을 조금 더 잘 이해해보자는 마음으로 만든 참고용 가이드예요. 관계·MBTI·상황을 바탕으로 감정과 원인을 추정하고, 어떻게 다가가면 좋을지 몇 가지 방향을 제안해드려요.</p>
+      <p class="sub" style="margin-bottom:14px;"><b>중요:</b> 이 사이트는 진짜 AI 감정 분석이 아니라 정해진 규칙으로 작동하는 데모예요. 재미와 참고용으로 활용해주시고, 실제로 심각하거나 반복되는 갈등이라면 전문 상담사와 이야기 나누는 게 가장 좋은 방법이라는 것도 꼭 기억해주세요.</p>
+      <p class="sub" style="margin:0;">입력한 내용과 분석 결과는 이 브라우저 안에만 저장되고 외부로 전송되지 않아요.</p>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="screen" id="s-faq">
+    <div class="card">
+      <h1 class="hero" style="font-size:22px; text-align:left;">자주 묻는 질문</h1>
+      <div class="faq-item"><div class="faq-q">이 분석은 진짜 AI가 하는 건가요?</div><div class="faq-a">아니요. 정해진 키워드·소리 패턴, 관계·MBTI 데이터를 조합하는 규칙 기반 데모예요. 참고용으로만 활용해주세요.</div></div>
+      <div class="faq-item"><div class="faq-q">답장 예시가 왜 3개나 나오나요?</div><div class="faq-a">상황에 딱 맞는 정답은 하나가 아니라서, 서로 다른 접근(공감/시간 두기/구체적 사과) 중 지금 분위기에 맞는 걸 골라 쓸 수 있게 했어요.</div></div>
+      <div class="faq-item"><div class="faq-q">어떤 파일을 올릴 수 있나요?</div><div class="faq-a">mp3·wav·m4a 같은 음성 파일, mp4 등 영상 파일을 올릴 수 있어요. 브라우저나 파일 형식에 따라 소리 추출이 안 될 수도 있는데, 그럴 땐 다른 형식으로 다시 시도해주세요.</div></div>
+      <div class="faq-item"><div class="faq-q">관계를 선택하면 뭐가 달라지나요?</div><div class="faq-a">추천 답변 문장의 말투(반말/존댓말)와 유의사항이 관계에 맞게 달라져요.</div></div>
+      <div class="faq-item"><div class="faq-q">파일이 서버에 저장되나요?</div><div class="faq-a">아니요. 모든 계산은 이 브라우저 안에서만 이루어져요. 분석 결과 요약만 이 기기의 저장공간에 남고, 파일 자체는 어디에도 전송되지 않아요.</div></div>
+      <div class="faq-item"><div class="faq-q">결과가 실제랑 다른 것 같아요.</div><div class="faq-a">이 가이드는 참고용이에요. 두 사람의 관계를 가장 잘 아는 건 나 자신이라는 점을 기억해주세요.</div></div>
+    </div>
+  </section>
+
+  <!-- STEP 0: 관계 선택 -->
+  <section class="screen" id="s-rel">
+    <div class="steps"><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+    <div class="card">
+      <h1 class="hero" style="font-size:22px;">누구와의 대화인가요?</h1>
+      <p class="sub">관계에 따라 어울리는 말투와 접근 방식이 달라져요.</p>
+      <div class="opt-grid" id="relGrid"></div>
+      <div id="relOtherWrap" style="display:none; margin-top:10px;">
+        <input type="text" class="plain-input" id="relOtherInput" placeholder="예: 선배, 동생, 룸메이트 등">
+      </div>
+      <div class="btnrow"><button class="btn btn-primary" id="toStep1" disabled>다음</button></div>
+    </div>
+  </section>
+
+  <!-- STEP 1: MBTI -->
+  <section class="screen" id="s-1">
+    <div class="steps"><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+    <div class="card">
+      <h1 class="hero" style="font-size:22px;">상대의 MBTI를 알려주세요</h1>
+      <p class="sub">먼저 성향을 알면 지금 행동을 더 정확히 이해할 수 있어요.</p>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--pink)"></span>NF · 관계지향</span>
+        <span><span class="sw" style="background:var(--blue)"></span>NT · 논리지향</span>
+        <span><span class="sw" style="background:var(--mint)"></span>SJ · 원칙지향</span>
+        <span><span class="sw" style="background:var(--peach)"></span>SP · 즉흥지향</span>
+      </div>
+      <div class="mbti-grid" id="mbtiGrid"></div>
+      <div class="btnrow"><button class="btn btn-ghost" id="backRel">이전</button><button class="btn btn-primary" id="toStep2" disabled>다음</button></div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="screen" id="s-2">
+    <div class="steps"><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot"></div><div class="step-dot"></div></div>
+    <div class="card">
+      <h1 class="hero" id="mbtiTitle" style="font-size:22px;"></h1>
+      <div class="trait-box" style="background:var(--blue-bg);"><h3>😤 갈등 상황에서의 성향</h3><p id="mbtiConflict"></p></div>
+      <div class="trait-box" style="background:var(--mint-bg);"><h3>🗣️ 감정을 표현하는 방식</h3><p id="mbtiExpress"></p></div>
+      <div class="trait-box" style="background:var(--peach-bg);"><h3>🕊️ 화해하고 싶을 때 보이는 신호</h3><p id="mbtiSignal"></p></div>
+      <div class="btnrow"><button class="btn btn-ghost" id="back1">이전</button><button class="btn btn-primary" id="toStep3">다음</button></div>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="screen" id="s-3">
+    <div class="steps"><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot"></div></div>
+    <div class="card">
+      <h1 class="hero" style="font-size:22px;">무슨 일이 있었나요?</h1>
+      <div id="textBlock">
+        <p class="sub">상대가 보낸 카톡 내용이나 말투, 그때 상황을 최대한 그대로 적어주세요.</p>
+        <textarea id="situationInput" placeholder="예: '됐어 신경쓰지마' 라고 톡이 왔어요. 원래 답장 빨랐는데 오늘따라 계속 늦고 단답이에요."></textarea>
+      </div>
+      <div id="voiceBlock" style="display:none;">
+        <p class="sub">상대의 목소리가 담긴 음성 파일이나 영상 파일을 올려주세요. 통화 녹음, 보이스메시지, 영상 속 음성 등도 가능해요.</p>
+        <div class="voice-box">
+          <div style="font-size:34px; margin-bottom:6px;">🎧</div>
+          <div class="voice-status" id="voiceStatus">파일을 선택해주세요 (음성 또는 영상)</div>
+          <input type="file" id="mediaFile" accept="audio/*,video/*" class="plain-input">
+        </div>
+        <p class="privacy-note">🔒 업로드된 파일은 이 브라우저 안에서만 계산되고 서버로 전송되지 않아요.</p>
+      </div>
+      <div class="btnrow"><button class="btn btn-ghost" id="back2">이전</button><button class="btn btn-primary" id="toStep4" disabled>분석하기</button></div>
+    </div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="screen" id="s-4">
+    <div class="steps"><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot active"></div><div class="step-dot active"></div></div>
+    <div class="card">
+      <h1 class="hero" style="font-size:22px;">분석 결과</h1>
+      <div class="tag-row" id="resTopTags"></div>
+      <div class="result-section" id="resVoiceMetaWrap" style="display:none;">
+        <h3>🎧 파일에서 읽은 신호</h3>
+        <div class="tag-row" id="resVoiceTags"></div>
+        <p style="font-size:12.5px; color:var(--ink-soft);">※ 소리 크기·높낮이·떨림을 계산한 대략적인 추정이에요.</p>
+      </div>
+      <div class="result-section"><h3>😔 지금 상대의 감정</h3><p id="resMood"></p></div>
+      <div class="result-section"><h3>🔍 서운함·분노의 원인 추정</h3><p id="resCause"></p></div>
+      <div class="divider"></div>
+      <div class="result-section"><h3>🧩 이렇게 반응하는 이유</h3><p id="resMbtiLink"></p></div>
+      <div class="result-section"><h3>🕊️ 화해 신호를 기다리는 방식</h3><p id="resSignal"></p></div>
+      <div class="result-section"><h3>👥 관계별 유의사항</h3><p id="resRelTip"></p></div>
+      <div class="result-section"><h3>✅ 지금 내가 해야 할 행동</h3><ul id="resActions"></ul></div>
+      <div class="result-section"><h3>💬 답장 전략 3가지</h3><div id="resStrategies"></div></div>
+      <div class="btnrow"><button class="btn btn-ghost" id="restart">처음부터 다시</button></div>
+    </div>
+  </section>
+
+  <!-- 기록 -->
+  <section class="screen" id="s-hist">
+    <div class="card">
+      <h1 class="hero" style="font-size:22px;">기록 보관함</h1>
+      <p class="sub">이 기기에 저장된 분석 기록이에요. 브라우저 저장공간을 지우면 사라질 수 있어요.</p>
+      <div id="histList"></div>
+      <div class="btnrow"><button class="btn btn-ghost" id="clearHist">전체 삭제</button><button class="btn btn-primary" id="closeHist">닫기</button></div>
+    </div>
+  </section>
 </div>
 
 <script>
-  // DOM 로드 완료 후 안전하게 이벤트 연결
-  document.addEventListener("DOMContentLoaded", function() {
-    var btn = document.getElementById("main-analyze-btn");
-    var resultArea = document.getElementById("result-area");
+const RELATIONS = {
+  lover:{label:"연인", emoji:"❤️", formal:false, tip:"서로 감정을 있는 그대로 나눌 수 있는 사이예요. 진심을 담은 말 한마디가 가장 효과적이에요.", common:"연락 빈도, 데이트 약속, 감정 표현 방식 차이에서 갈등이 자주 생겨요."},
+  friend:{label:"친구", emoji:"🤝", formal:false, tip:"편하게 다가가되, 자존심이 상하지 않게 배려하는 톤을 유지하면 좋아요.", common:"약속 취소, 서운한 말투, 관심사나 우선순위 차이에서 갈등이 생기기 쉬워요."},
+  parent:{label:"부모님", emoji:"🏠", formal:true, tip:"존중하는 표현을 유지하면서도 솔직한 마음을 전하면 더 잘 전달돼요.", common:"생활 방식, 진로, 잔소리에 대한 시각 차이가 흔한 갈등 원인이에요."},
+  boss:{label:"직장 상사", emoji:"💼", formal:true, tip:"사적인 감정보다 업무적 예의를 지키며 신중하게 다가가는 게 좋아요.", common:"업무 지시 방식, 피드백, 야근·성과에 대한 인식 차이가 흔한 갈등 지점이에요."},
+  other:{label:"", emoji:"✏️", formal:true, tip:"관계의 특성에 맞게 말투 수위를 조절해서 다가가 보세요.", common:"관계 특성에 따라 다양한 갈등 원인이 있을 수 있어요."}
+};
 
-    btn.addEventListener("click", function() {
-      // 1. 입력값 수집
-      var mbti = document.getElementById("mbti").value;
-      var rawText = document.getElementById("rawText").value;
-      
-      var reactions = [];
-      var checkboxes = document.querySelectorAll('input[name="reaction"]:checked');
-      checkboxes.forEach(function(cb) {
-        reactions.push(cb.value);
-      });
+const MBTI = {
+  ISTJ:{g:"SJ",conflict:"논리와 원칙을 중시해서, 갈등이 생기면 감정보다 '누가 맞는지'를 먼저 따지려는 경향이 있어요.",express:"감정을 겉으로 잘 드러내지 않고, 대신 행동(연락 빈도, 태도)으로 티가 나는 편이에요.",signal:"먼저 사과하기보다, 평소처럼 행동하며 자연스럽게 화해를 시도해요. 그게 이 유형 나름의 사과예요."},
+  ISFJ:{g:"SJ",conflict:"갈등 자체를 피하고 싶어해서, 서운해도 먼저 티내기보다 참다가 한꺼번에 지치는 유형이에요.",express:"직접 화내기보다 조용해지거나 평소보다 배려가 줄어드는 식으로 신호를 보내요.",signal:"작은 챙김(먼저 안부 묻기, 좋아하는 걸 챙겨주기)으로 화해 의사를 은근히 표현해요."},
+  INFJ:{g:"NF",conflict:"작은 신호에도 깊게 의미를 부여하는 편이라, 사소해 보이는 일도 마음속에서는 크게 자리잡을 수 있어요.",express:"바로 표현하기보다 혼자 정리하는 시간을 가지려 하고, 정리가 안 되면 거리를 둬요.",signal:"진심이 담긴 긴 메시지나 깊은 대화를 시도하면, 마음이 풀리기 시작했다는 신호예요."},
+  INTJ:{g:"NT",conflict:"감정보다 문제 해결을 우선시해서, 정작 본인의 서운함은 뒤로 미루다가 누적되는 경우가 많아요.",express:"짜증을 직접 표현하기보다 대화 자체를 효율적으로 줄이려는 태도로 나타나요.",signal:"다시 먼저 대화 주제를 꺼내거나 계획을 제안하면, 화해할 준비가 된 거예요."},
+  ISTP:{g:"SP",conflict:"즉각적인 갈등 상황을 부담스러워해서 일단 한발 물러나 혼자 생각할 시간을 가지려 해요.",express:"말수가 급격히 줄고 무덤덤해 보이지만, 속으로는 계속 생각하고 있는 경우가 많아요.",signal:"별일 없었다는 듯 평소 톤으로 먼저 말을 걸면, 이미 마음이 풀린 상태일 가능성이 높아요."},
+  ISFP:{g:"SP",conflict:"갈등이 생기면 상처를 크게 받는 편이라, 방어적으로 조용해지거나 자리를 피하려 해요.",express:"직접적인 비난보다 서운한 티가 표정이나 톤 변화로 은은하게 드러나요.",signal:"좋아하는 걸 같이 하자고 제안하거나 사진·짤을 보내면 화해의 신호예요."},
+  INFP:{g:"NF",conflict:"관계의 의미를 깊이 생각하는 만큼, 서운함을 느끼면 '이 관계가 맞나'까지 고민이 확장되기도 해요.",express:"바로 말하지 못하고 속으로 삭이다가, 감정이 쌓이면 예상보다 크게 터질 수 있어요.",signal:"솔직한 마음을 담은 메시지를 먼저 보내면, 그건 큰 용기를 낸 화해 신호예요."},
+  INTP:{g:"NT",conflict:"감정적 충돌 자체를 비효율적이라 느껴서 논리로 설명하려 하고, 그게 오히려 차갑게 느껴질 수 있어요.",express:"화가 나도 냉정한 어조를 유지하려 해서, 상대는 감정을 못 느낄 수도 있어요.",signal:"다시 농담을 던지거나 관심사 얘기를 꺼내면, 별일 아니었다는 뜻일 수 있어요."},
+  ESTP:{g:"SP",conflict:"감정을 오래 담아두지 않는 대신, 그 순간엔 직설적으로 반응이 튀어나올 수 있어요.",express:"짜증이나 서운함이 표정과 말투에 즉각적으로 드러나는 편이에요.",signal:"금방 평소처럼 장난치듯 연락하면, 이미 마음이 다 풀렸다는 뜻이에요."},
+  ESFP:{g:"SP",conflict:"분위기가 무거워지는 걸 못 견뎌해서, 갈등 중에도 농담으로 넘기려다 오히려 오해를 살 수 있어요.",express:"평소보다 리액션이 줄고 조용해지는 게 신호일 수 있어요.",signal:"먼저 만나자고 하거나 재밌는 걸 공유하면, 화해하고 싶다는 뜻이에요."},
+  ENFP:{g:"NF",conflict:"관계에서 오는 서운함을 크게 느끼는 편이라, 사소한 무관심에도 쉽게 상처받아요.",express:"평소의 텐션이 갑자기 다운되거나, 연락 빈도가 눈에 띄게 줄어드는 식으로 나타나요.",signal:"다시 텐션 높은 메시지나 이모티콘이 돌아오면, 마음이 풀렸다는 확실한 신호예요."},
+  ENTP:{g:"NT",conflict:"논쟁 자체를 즐기는 편이라 갈등 상황에서 날카로운 말을 쉽게 던지지만, 뒤끝은 적은 편이에요.",express:"직설적이고 도발적인 말투로 감정을 드러내는 경우가 많아요.",signal:"다시 논쟁적인 주제나 농담을 던지면, 이미 기분이 풀렸다는 뜻이에요."},
+  ESTJ:{g:"SJ",conflict:"상황을 빨리 정리하고 싶어해서, 감정보다 '그래서 어떻게 할 건지'를 먼저 요구할 수 있어요.",express:"단호하고 명령조에 가까운 말투로 답답함을 표현해요.",signal:"다시 계획이나 일정을 얘기하기 시작하면, 넘어갈 준비가 됐다는 신호예요."},
+  ESFJ:{g:"SJ",conflict:"관계의 조화를 중요하게 여겨서, 갈등이 생기면 빨리 풀고 싶어하고 그 전까진 계속 신경 쓰여 해요.",express:"서운함을 직접 말하기보다 서비스나 배려가 눈에 띄게 줄어드는 식으로 표현해요.",signal:"먼저 안부를 묻거나 챙기는 말을 건네면, 화해하고 싶다는 뜻이에요."},
+  ENFJ:{g:"NF",conflict:"상대의 감정까지 신경 쓰다 보니, 정작 본인의 서운함은 참고 있다가 늦게 티가 나요.",express:"평소보다 격려나 리액션이 줄어드는 게 신호일 수 있어요.",signal:"다시 다정한 응원의 말을 건네면, 이미 마음을 다잡고 화해할 준비가 된 거예요."},
+  ENTJ:{g:"NT",conflict:"문제를 빨리 해결하려는 성향 때문에, 감정적인 대화보다 결론부터 요구하는 태도로 비칠 수 있어요.",express:"직설적이고 단정적인 어조로 답답함을 드러내는 편이에요.",signal:"다시 앞으로의 계획이나 목표를 얘기하면, 이미 넘어간 상태일 가능성이 커요."}
+};
 
-      // 2. 결과 텍스트 동적 생성
-      var emotionText = "서운함 / 경계심";
-      var summaryText = "상대는 현재 기대했던 반응이 나오지 않아 마음을 닫았거나 대화 피로도가 높아진 상태입니다.";
-      var templateText = "아까 일로 마음이 많이 불편했을 것 같아. 내 행동 때문에 신경 쓰였다면 미안해. 편할 때 얘기하자.";
+const MOOD_RULES = [
+  {key:"anger", dictName:"분노", words:["짜증","화나","열받","싫어","됐어","됐다고","꺼져","너무해","진짜","하지마"],
+   mood:"분노에 가까운 감정이 느껴져요. 억눌러왔던 불만이 이번 일을 계기로 터져나온 상태일 수 있어요.",
+   cause:"단순히 이번 일 하나 때문이라기보다, 그동안 쌓여온 서운함이 이번 사건으로 한꺼번에 표출됐을 가능성이 커요.",
+   signs:"말수가 줄고 단답으로 대답, 평소보다 날카로운 말투, 연락을 일부러 늦게 하는 듯한 태도",
+   misconception:"단순히 예민해서 그런다고 오해하기 쉽지만, 대부분 쌓인 서운함이 임계점을 넘은 신호예요.",
+   actions:["지금 당장 해명하거나 설득하려 하지 마세요. 오히려 반발심을 키울 수 있어요.","'왜 그랬냐'고 따지기보다 '많이 답답했겠다'는 말로 감정부터 받아주세요.","시간을 두고 상대가 진정된 뒤에 차분히 이야기할 시간을 다시 잡아보세요.","같은 상황이 반복되지 않도록, 화해 후에 구체적으로 무엇을 바꿀지 함께 얘기해보세요."],
+   strategies:[
+     {label:"😌 감정부터 인정하기", casual:"미안, 내가 생각이 짧았어. 많이 답답했겠다.", formal:"죄송합니다, 제가 생각이 짧았습니다. 많이 답답하셨겠어요."},
+     {label:"⏳ 시간을 두고 다가가기", casual:"지금 화나 있는 거 알아. 진정되면 그때 편하게 얘기하자.", formal:"지금 화나신 거 압니다. 진정되시면 그때 말씀 나누고 싶습니다."},
+     {label:"🎯 구체적으로 사과하기", casual:"내가 잘못한 부분 인정할게. 정확히 뭐가 문제였는지 말해줄래?", formal:"제가 잘못한 부분을 인정합니다. 정확히 어떤 점이 문제였는지 말씀해주시겠어요?"}
+   ]},
+  {key:"hurt", dictName:"서운함", words:["서운","섭섭","실망","속상","기대했","슬퍼"],
+   mood:"서운함과 실망이 섞인 감정으로 보여요. 기대했던 만큼 돌아오지 않아서 상처받은 상태예요.",
+   cause:"어떤 행동 자체보다, 그 행동에서 느껴진 '관심 부족' 또는 '기대에 못 미침'이 진짜 원인일 가능성이 높아요.",
+   signs:"대답이 짧아짐, 괜찮다고 말하면서도 표정이나 톤이 가라앉음, 대화를 빨리 끝내려는 태도",
+   misconception:"별거 아닌 일에 예민하다고 넘기기 쉽지만, 본인에게는 기대가 꺾인 큰 사건일 수 있어요.",
+   actions:["'그럴 의도 아니었어'로 방어하기보다, 상대가 느낀 감정을 먼저 인정해주세요.","무엇을 기대했었는지 구체적으로 물어봐 주세요.","작은 행동으로라도 관심을 다시 보여주는 게 말보다 효과적이에요.","앞으로 비슷한 상황에서 어떻게 해줬으면 하는지 함께 정해보세요."],
+   strategies:[
+     {label:"😌 감정부터 인정하기", casual:"내가 그 부분 놓쳐서 서운했겠다. 미안해.", formal:"제가 그 부분을 놓쳐서 서운하셨겠어요. 죄송합니다."},
+     {label:"⏳ 시간을 두고 다가가기", casual:"지금 서운한 거 알아. 마음 정리되면 얘기하자.", formal:"지금 서운하신 거 압니다. 마음 정리되시면 말씀 나누고 싶습니다."},
+     {label:"🎯 구체적으로 물어보기", casual:"혹시 내가 어떻게 했으면 좋았을지 말해줄 수 있어?", formal:"혹시 제가 어떻게 했으면 좋았을지 말씀해주시겠어요?"}
+   ]},
+  {key:"withdraw", dictName:"회피", words:["몰라","알아서","상관없","굳이","ㅇㅇ","ㅇㅋ","..."],
+   mood:"거리를 두고 싶어하는, 회피에 가까운 감정 상태예요. 지금은 대화 자체가 버겁게 느껴질 수 있어요.",
+   cause:"직접 부딪히는 걸 피하고 싶을 만큼 감정이 정리가 안 됐거나, 이미 여러 번 말했는데도 달라지지 않았다고 느꼈을 수 있어요.",
+   signs:"단답형 대답, 대화 주제를 빨리 끝내려는 태도, 연락 빈도 감소",
+   misconception:"관심이 없어졌다고 오해하기 쉽지만, 오히려 갈등을 감당하기 버거워서 나오는 반응인 경우가 많아요.",
+   actions:["단답이 온다고 해서 계속 캐묻지 마세요. 오히려 더 닫히게 만들 수 있어요.","'천천히 얘기해도 괜찮아'라는 신호를 먼저 보내주세요.","즉답을 강요하지 말고, 상대가 준비됐을 때 다시 말 걸 여지를 남겨두세요.","같은 문제가 반복됐다면, 이번엔 다르게 행동하고 있다는 걸 보여주세요."],
+   strategies:[
+     {label:"😌 부담 없이 다가가기", casual:"지금 말하기 힘들면 안 해도 돼. 그냥 네 생각 하고 있었어.", formal:"지금 말씀하시기 어려우시면 안 하셔도 됩니다. 그냥 생각하고 있었다는 말씀 드리고 싶었어요."},
+     {label:"⏳ 시간을 두고 다가가기", casual:"준비됐을 때 편하게 말해줘. 기다릴게.", formal:"준비되셨을 때 편하게 말씀해주세요. 기다리겠습니다."},
+     {label:"🎯 구체적으로 물어보기", casual:"혹시 내가 여러 번 같은 실수한 거면 말해줘, 고쳐볼게.", formal:"혹시 제가 같은 실수를 반복했다면 말씀해주세요, 고치겠습니다."}
+   ]},
+  {key:"anxious", dictName:"불안", words:["걱정","불안","혹시","무서워"],
+   mood:"불안과 걱정이 섞인 감정이에요. 관계 자체에 대한 확신이 흔들리고 있을 수 있어요.",
+   cause:"이번 상황이 '혹시 나를 덜 중요하게 생각하는 건 아닐까'라는 불안으로 이어졌을 가능성이 있어요.",
+   signs:"평소보다 질문이 많아지거나 반대로 말수가 줄고 조심스러워짐",
+   misconception:"집착한다고 오해받기 쉽지만, 관계에 대한 확신이 흔들려서 나오는 신호예요.",
+   actions:["구체적이고 분명한 말로 안심시켜 주세요. 모호한 위로는 오히려 불안을 키워요.","관계에 대한 확신을 직접적인 말로 표현해 주세요.","앞으로의 계획이나 다음 만남을 구체적으로 이야기해서 불확실함을 줄여주세요.","불안해할 만한 행동이 있었다면 솔직히 인정하고 앞으로의 변화를 약속해주세요."],
+   strategies:[
+     {label:"😌 안심시켜 주기", casual:"걱정 안 해도 돼, 나 여기 그대로 있어.", formal:"걱정 안 하셔도 됩니다, 저는 그대로 있습니다."},
+     {label:"⏳ 만남으로 확신 주기", casual:"불안했다면 미안해, 이번 주에 얼굴 보고 얘기하자.", formal:"불안하게 해드렸다면 죄송합니다, 이번 주에 직접 뵙고 말씀 나누면 좋겠습니다."},
+     {label:"🎯 구체적으로 명확히 하기", casual:"내가 뭘 불확실하게 했는지 말해주면 더 명확히 할게.", formal:"제가 어떤 부분을 불확실하게 했는지 말씀해주시면 더 명확히 하겠습니다."}
+   ]}
+];
+const RULE_BY_KEY = Object.fromEntries(MOOD_RULES.map(r=>[r.key,r]));
 
-      if (rawText.includes("됐어") || rawText.includes("신경")) {
-        emotionText = "일시적 마음 닫힘 / 방어적 태도";
-        summaryText = "직접적인 대립을 피하고 상황을 빠르게 종료시키려는 방어 기제가 작동 중입니다.";
-        templateText = "내가 서운하게 한 부분이 있다면 솔직하게 말해줄 수 있어? 네 마음 편하게 들을게.";
-      } else if (reactions.includes("DELAY")) {
-        emotionText = "생각 정리 필요 / 대화 회피";
-        summaryText = "당장 대답을 이어가기보다는 혼자만의 정리 시간이 필요한 상태입니다.";
-        templateText = "지금 바쁘거나 생각할 시간이 필요하면 천천히 연락해줘. 기다릴게!";
+const CHECKLIST = [
+  "지금 내 감정 상태가 차분한가요? 화가 난 채로 대화를 시작하면 더 커지기 쉬워요.",
+  "상대를 '이기려는' 대화가 아니라 '이해하려는' 대화인지 스스로에게 물어보세요.",
+  "대화하기 좋은 시간과 장소인가요? 공개된 장소나 서로 급한 순간은 피하는 게 좋아요.",
+  "하고 싶은 말을 한두 문장으로 먼저 정리해봤나요?",
+  "상대가 방어적으로 나와도 감정적으로 맞받아치지 않겠다고 마음먹었나요?",
+  "이 대화의 목표가 '누가 옳은지 가리기'가 아니라 '관계를 회복하는 것'이라는 걸 기억하세요."
+];
+
+const SAMPLES = [
+  {relation:"lover", mbti:"INFP", text:"'ㅇㅇ' 라고만 답장이 왔어요. 원래 이모티콘이랑 같이 길게 답장하던 사람인데, 오늘따라 계속 단답이에요."},
+  {relation:"boss", mbti:"ESTJ", text:"팀장님이 '보고서 다시 봐야겠는데요' 라고 짧고 단호하게 톡을 보내셨어요. 평소보다 훨씬 사무적인 말투였어요."},
+  {relation:"parent", mbti:"ISFJ", text:"엄마가 '알아서 해' 라고 하시고 전화를 끊으셨어요. 원래 이것저것 챙겨주시는 분인데 오늘은 유독 무뚝뚝하셨어요."}
+];
+
+let state = {relation:null, relationLabel:"", relationFormal:false, mbti:null, mode:"text", situation:"", voiceMeta:null, result:null};
+let uploadedFile=null;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('navHow').classList.toggle('on', id==='s-how');
+  document.getElementById('navRelGuide').classList.toggle('on', id==='s-relguide');
+  document.getElementById('navDex').classList.toggle('on', id==='s-dex');
+  document.getElementById('navDict').classList.toggle('on', id==='s-dict');
+  document.getElementById('navChecklist').classList.toggle('on', id==='s-checklist');
+  document.getElementById('navSample').classList.toggle('on', id==='s-sample');
+  document.getElementById('navTips').classList.toggle('on', id==='s-tips');
+  document.getElementById('navFaq').classList.toggle('on', id==='s-faq');
+  document.getElementById('navHist').classList.toggle('on', id==='s-hist');
+  document.getElementById('navAbout').classList.toggle('on', id==='s-about');
+  window.scrollTo(0,0);
+}
+document.getElementById('logoHome').addEventListener('click',()=>showScreen('s-home'));
+document.getElementById('navHow').addEventListener('click',()=>showScreen('s-how'));
+document.getElementById('navRelGuide').addEventListener('click',()=>showScreen('s-relguide'));
+document.getElementById('navDex').addEventListener('click',()=>showScreen('s-dex'));
+document.getElementById('navDict').addEventListener('click',()=>showScreen('s-dict'));
+document.getElementById('navChecklist').addEventListener('click',()=>showScreen('s-checklist'));
+document.getElementById('navSample').addEventListener('click',()=>showScreen('s-sample'));
+document.getElementById('navTips').addEventListener('click',()=>showScreen('s-tips'));
+document.getElementById('navFaq').addEventListener('click',()=>showScreen('s-faq'));
+document.getElementById('navAbout').addEventListener('click',()=>showScreen('s-about'));
+document.getElementById('howLink').addEventListener('click',()=>showScreen('s-how'));
+document.getElementById('navHist').addEventListener('click',()=>{ loadHistory(); showScreen('s-hist'); });
+document.getElementById('closeHist').addEventListener('click',()=>showScreen(state.result?'s-4':'s-home'));
+
+function enterFlow(mode){
+  state.mode = mode;
+  document.getElementById('textBlock').style.display = mode==='text' ? 'block':'none';
+  document.getElementById('voiceBlock').style.display = mode==='voice' ? 'block':'none';
+  document.getElementById('toStep4').disabled = true;
+  showScreen('s-rel');
+}
+document.getElementById('startTextBtn').addEventListener('click',()=>enterFlow('text'));
+document.getElementById('startVoiceBtn').addEventListener('click',()=>enterFlow('voice'));
+
+/* ---- 관계 선택 ---- */
+function renderRelGrid(){
+  const grid = document.getElementById('relGrid');
+  Object.keys(RELATIONS).forEach(key=>{
+    const r = RELATIONS[key];
+    const b = document.createElement('button');
+    b.className='opt-btn'; b.type='button';
+    b.textContent = key==='other' ? `${r.emoji} 기타` : `${r.emoji} ${r.label}`;
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('#relGrid .opt-btn').forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected');
+      state.relation = key; state.relationFormal = r.formal;
+      const otherWrap = document.getElementById('relOtherWrap');
+      if(key==='other'){
+        otherWrap.style.display='block';
+        state.relationLabel = document.getElementById('relOtherInput').value.trim();
+        document.getElementById('toStep1').disabled = state.relationLabel.length===0;
+      }else{
+        otherWrap.style.display='none';
+        state.relationLabel = r.label;
+        document.getElementById('toStep1').disabled = false;
       }
-
-      if (mbti !== "UNKNOWN") {
-        summaryText += " (" + mbti + " 성향을 고려할 때 감정적 다그침보다는 객관적인 인정이 효과적입니다.)";
-      }
-
-      // 3. 화면 업데이트 및 출력
-      document.getElementById("emotion-res").innerHTML = '<span class="tag">' + emotionText + '</span>';
-      document.getElementById("analysis-res").innerText = summaryText;
-      document.getElementById("template-res").innerText = templateText;
-
-      // 결과 보이기
-      resultArea.style.display = "block";
-      resultArea.scrollIntoView({ behavior: 'smooth' });
     });
+    grid.appendChild(b);
   });
-</script>
+}
+renderRelGrid();
+document.getElementById('relOtherInput').addEventListener('input', e=>{
+  state.relationLabel = e.target.value.trim();
+  if(state.relation==='other') document.getElementById('toStep1').disabled = state.relationLabel.length===0;
+});
+document.getElementById('toStep1').addEventListener('click',()=>showScreen('s-1'));
+document.getElementById('backRel').addEventListener('click',()=>showScreen('s-rel'));
 
+function renderRelGuide(){
+  const list = document.getElementById('relGuideList');
+  Object.keys(RELATIONS).forEach(key=>{
+    if(key==='other') return;
+    const r = RELATIONS[key];
+    const item=document.createElement('div'); item.className='dex-item';
+    item.innerHTML = `<div class="dex-head">${r.emoji} ${r.label} <span class="dex-arrow">▾</span></div>
+      <div class="dex-body"><p><b>흔한 갈등 지점</b> · ${r.common}</p><p><b>다가가는 방식</b> · ${r.tip}</p></div>`;
+    item.querySelector('.dex-head').addEventListener('click',()=>item.classList.toggle('open'));
+    list.appendChild(item);
+  });
+}
+renderRelGuide();
+
+function renderMbtiGrid(){
+  const grid = document.getElementById('mbtiGrid');
+  Object.keys(MBTI).forEach(type=>{
+    const b = document.createElement('button');
+    b.className='mbti-btn'; b.textContent=type; b.type='button'; b.dataset.g = MBTI[type].g;
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('.mbti-btn').forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected');
+      state.mbti = type;
+      document.getElementById('toStep2').disabled=false;
+    });
+    grid.appendChild(b);
+  });
+}
+renderMbtiGrid();
+
+function renderDex(){
+  const list = document.getElementById('dexList');
+  Object.keys(MBTI).forEach(type=>{
+    const info = MBTI[type];
+    const item = document.createElement('div'); item.className='dex-item';
+    item.innerHTML = `<div class="dex-head">${type} <span class="dex-arrow">▾</span></div>
+      <div class="dex-body"><p><b>갈등 성향</b> · ${info.conflict}</p><p><b>표현 방식</b> · ${info.express}</p><p><b>화해 신호</b> · ${info.signal}</p></div>`;
+    item.querySelector('.dex-head').addEventListener('click',()=>item.classList.toggle('open'));
+    list.appendChild(item);
+  });
+}
+renderDex();
+
+function renderDict(){
+  const list = document.getElementById('dictList');
+  MOOD_RULES.forEach(r=>{
+    const item = document.createElement('div'); item.className='dex-item';
+    item.innerHTML = `<div class="dex-head">${r.dictName} <span class="dex-arrow">▾</span></div>
+      <div class="dex-body"><p><b>어떤 감정인가요</b> · ${r.mood}</p><p><b>흔히 보이는 신호</b> · ${r.signs}</p><p><b>오해하기 쉬운 점</b> · ${r.misconception}</p></div>`;
+    item.querySelector('.dex-head').addEventListener('click',()=>item.classList.toggle('open'));
+    list.appendChild(item);
+  });
+}
+renderDict();
+
+function renderChecklist(){
+  const body = document.getElementById('checklistBody');
+  CHECKLIST.forEach((text,i)=>{
+    const row = document.createElement('div'); row.className='check-item';
+    const cid = 'chk'+i;
+    row.innerHTML = `<input type="checkbox" id="${cid}"><label for="${cid}">${text}</label>`;
+    const input = row.querySelector('input');
+    input.addEventListener('change',()=>row.classList.toggle('checked', input.checked));
+    body.appendChild(row);
+  });
+}
+renderChecklist();
+
+function renderSamples(){
+  const list = document.getElementById('sampleList');
+  SAMPLES.forEach(s=>{
+    const r = RELATIONS[s.relation];
+    const card = document.createElement('div'); card.className='sample-card';
+    card.innerHTML = `<div class="sample-tags"><span class="tag relation">${r.emoji} ${r.label}</span><span class="tag">${s.mbti}</span></div>
+      <div class="sample-title">"${s.text.slice(0,28)}..."</div>
+      <div class="sample-desc">눌러서 전체 분석 결과 보기</div>`;
+    card.addEventListener('click',()=>{
+      ensureAudioCtx();
+      state.relation=s.relation; state.relationLabel=r.label; state.relationFormal=r.formal;
+      state.mbti=s.mbti; state.mode='text'; state.situation=s.text; state.voiceMeta=null;
+      finishAnalysis(analyzeText(s.text, s.mbti));
+    });
+    list.appendChild(card);
+  });
+}
+renderSamples();
+
+document.getElementById('toStep2').addEventListener('click',()=>{
+  const info = MBTI[state.mbti];
+  document.getElementById('mbtiTitle').textContent = state.mbti+" 유형이군요";
+  document.getElementById('mbtiConflict').textContent = info.conflict;
+  document.getElementById('mbtiExpress').textContent = info.express;
+  document.getElementById('mbtiSignal').textContent = info.signal;
+  showScreen('s-2');
+});
+document.getElementById('back1').addEventListener('click',()=>showScreen('s-1'));
+document.getElementById('toStep3').addEventListener('click',()=>showScreen('s-3'));
+document.getElementById('back2').addEventListener('click',()=>showScreen('s-2'));
+
+document.getElementById('situationInput').addEventListener('input', e=>{
+  if(state.mode==='text') document.getElementById('toStep4').disabled = e.target.value.trim().length===0;
+});
+
+/* ---- 음성/영상 파일 업로드 ---- */
+const voiceStatus = document.getElementById('voiceStatus');
+document.getElementById('mediaFile').addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if(f){
+    uploadedFile = f;
+    voiceStatus.textContent = `✅ "${f.name}" 업로드 완료! 분석하기를 눌러주세요.`;
+    document.getElementById('toStep4').disabled=false;
+  }
+});
+
+function analyzeAudioBuffer(buffer){
+  const data = buffer.getChannelData(0);
+  const sr = buffer.sampleRate;
+  let sumSq=0; for(let i=0;i<data.length;i++) sumSq+=data[i]*data[i];
+  const rms = Math.sqrt(sumSq/data.length);
+  let crossings=0; for(let i=1;i<data.length;i++){ if((data[i-1]>=0&&data[i]<0)||(data[i-1]<0&&data[i]>=0)) crossings++; }
+  const duration = data.length/sr;
+  const estPitch = (crossings/duration)/2;
+  const frames=20, frameLen=Math.floor(data.length/frames)||1;
+  let frameRms=[];
+  for(let f=0; f<frames; f++){
+    let s=0; const start=f*frameLen, end=Math.min(start+frameLen, data.length);
+    for(let i=start;i<end;i++) s+=data[i]*data[i];
+    frameRms.push(Math.sqrt(s/((end-start)||1)));
+  }
+  const meanFrame = frameRms.reduce((a,b)=>a+b,0)/frameRms.length;
+  const variance = frameRms.reduce((a,b)=>a+Math.pow(b-meanFrame,2),0)/frameRms.length;
+  const shakiness = meanFrame>0 ? Math.sqrt(variance)/meanFrame : 0;
+  return {rms, estPitch, shakiness};
+}
+function voiceToMoodKey(meta){
+  const loud = meta.rms>0.06, quiet = meta.rms<0.02;
+  const highPitch = meta.estPitch>190;
+  const shaky = meta.shakiness>0.55;
+  if(loud && (highPitch||shaky)) return 'anger';
+  if(quiet && shaky) return 'hurt';
+  if(quiet && !shaky) return 'withdraw';
+  if(shaky) return 'anxious';
+  return 'hurt';
+}
+function voiceTags(meta){
+  return [
+    meta.rms>0.06?'큰 목소리':meta.rms<0.02?'작고 힘없는 목소리':'보통 크기',
+    meta.estPitch>190?'높은 톤':meta.estPitch<110?'낮게 가라앉은 톤':'평범한 톤',
+    meta.shakiness>0.55?'떨리는 어조':'안정적인 어조'
+  ];
+}
+
+document.getElementById('toStep4').addEventListener('click', async ()=>{
+  ensureAudioCtx();
+  if(state.mode==='text'){
+    const text = document.getElementById('situationInput').value.trim();
+    if(!text) return;
+    state.situation = text; state.voiceMeta=null;
+    finishAnalysis(analyzeText(text, state.mbti));
+  }else{
+    if(!uploadedFile) return;
+    const btn = document.getElementById('toStep4');
+    btn.disabled=true; btn.textContent='분석 중...';
+    try{
+      const arrBuf = await uploadedFile.arrayBuffer();
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const audioBuffer = await ctx.decodeAudioData(arrBuf);
+      const meta = analyzeAudioBuffer(audioBuffer);
+      state.voiceMeta = meta;
+      finishAnalysis(analyzeVoice(voiceToMoodKey(meta), meta, state.mbti));
+    }catch(err){
+      voiceStatus.textContent='이 파일에서 소리를 추출하지 못했어요. 다른 음성·영상 파일로 다시 시도해주세요.';
+    }
+    btn.disabled=false; btn.textContent='분석하기';
+  }
+});
+
+function pickStrategies(top){
+  return top.strategies.map(s=>({label:s.label, line: state.relationFormal ? s.formal : s.casual}));
+}
+function analyzeText(text, mbti){
+  let scores = MOOD_RULES.map(r=>({rule:r, score:r.words.reduce((acc,w)=>acc+(text.includes(w)?1:0),0)}));
+  scores.sort((a,b)=>b.score-a.score);
+  let top = scores[0].score>0 ? scores[0].rule : RULE_BY_KEY.withdraw;
+  let extra = "";
+  if(text.length<12) extra=" 답장이 평소보다 짧고 단답형인 것도 감정을 억누르고 있다는 신호로 보여요.";
+  else if((text.match(/!/g)||[]).length>=2) extra=" 어조에서 다소 격앙된 느낌도 함께 읽혀요.";
+  const info = MBTI[mbti];
+  return {voiceMeta:null, mood:top.mood+extra, cause:top.cause,
+    mbtiLink:`${mbti} 유형은 ${info.conflict} 지금 상황도 이런 성향과 맞닿아 있을 가능성이 커요. 평소 감정 표현 방식은 '${info.express}'는 점도 함께 고려해보세요.`,
+    signal:info.signal, actions:top.actions, strategies:pickStrategies(top)};
+}
+function analyzeVoice(key, meta, mbti){
+  const top = RULE_BY_KEY[key];
+  const info = MBTI[mbti];
+  const moodPrefix = {anger:"목소리에서 격앙된 감정이 느껴져요.",hurt:"목소리에 서운함과 상처가 묻어나요.",withdraw:"목소리에 힘이 빠져있고 거리를 두려는 느낌이에요.",anxious:"목소리가 떨리는 걸 보니 불안한 마음이 있는 것 같아요."}[key];
+  return {voiceMeta:meta, mood:moodPrefix+" "+top.mood, cause:top.cause,
+    mbtiLink:`${mbti} 유형은 ${info.conflict} 목소리로 드러난 신호도 이런 성향과 맞닿아 있을 수 있어요.`,
+    signal:info.signal, actions:top.actions, strategies:pickStrategies(top)};
+}
+
+let audioCtx = null;
+function ensureAudioCtx(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+  }catch(e){ /* 오디오 컨텍스트 생성 실패는 무시 */ }
+}
+function playHeartbeat(){
+  if(!audioCtx) return;
+  try{
+    if(audioCtx.state==='suspended'){ audioCtx.resume().then(()=>scheduleBeats()).catch(()=>{}); }
+    else { scheduleBeats(); }
+  }catch(e){ /* 소리 재생 실패는 무시 */ }
+}
+function scheduleBeats(){
+  const now = audioCtx.currentTime;
+  function beat(t, freq, dur, vol){
+    const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+    osc.type='sine'; osc.frequency.setValueAtTime(freq,t);
+    gain.gain.setValueAtTime(0.0001,t);
+    gain.gain.exponentialRampToValueAtTime(vol,t+0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t+dur+0.05);
+  }
+  beat(now,       180, 0.16, 0.9);
+  beat(now+0.20,  130, 0.18, 0.7);
+  beat(now+0.85,  180, 0.16, 0.9);
+  beat(now+1.05,  130, 0.18, 0.7);
+}
+
+function finishAnalysis(result){
+  result.relationLabel = state.relationLabel;
+  result.relationTip = RELATIONS[state.relation].tip;
+  result.mbti = state.mbti;
+  state.result = result;
+  renderResult(result);
+  saveHistory(result);
+  playHeartbeat();
+  showScreen('s-4');
+}
+
+function renderResult(r){
+  const topTags = document.getElementById('resTopTags'); topTags.innerHTML='';
+  const relTag = document.createElement('span'); relTag.className='tag relation'; relTag.textContent='👥 '+r.relationLabel; topTags.appendChild(relTag);
+  const mbtiTag = document.createElement('span'); mbtiTag.className='tag'; mbtiTag.textContent=r.mbti; topTags.appendChild(mbtiTag);
+
+  const wrap = document.getElementById('resVoiceMetaWrap');
+  if(r.voiceMeta){
+    wrap.style.display='block';
+    const tagRow = document.getElementById('resVoiceTags'); tagRow.innerHTML='';
+    voiceTags(r.voiceMeta).forEach(t=>{const s=document.createElement('span'); s.className='tag'; s.textContent=t; tagRow.appendChild(s);});
+  }else{ wrap.style.display='none'; }
+
+  document.getElementById('resMood').textContent = r.mood;
+  document.getElementById('resCause').textContent = r.cause;
+  document.getElementById('resMbtiLink').textContent = r.mbtiLink;
+  document.getElementById('resSignal').textContent = r.signal;
+  document.getElementById('resRelTip').textContent = r.relationTip;
+  const ul = document.getElementById('resActions'); ul.innerHTML='';
+  r.actions.forEach(a=>{const li=document.createElement('li'); li.textContent=a; ul.appendChild(li);});
+  const stWrap = document.getElementById('resStrategies'); stWrap.innerHTML='';
+  r.strategies.forEach(s=>{
+    const d=document.createElement('div'); d.className='strategy-card';
+    d.innerHTML = `<div class="strategy-label">${s.label}</div><div class="strategy-line">"${s.line}"</div>`;
+    stWrap.appendChild(d);
+  });
+}
+
+document.getElementById('restart').addEventListener('click',()=>{
+  state = {relation:null, relationLabel:"", relationFormal:false, mbti:null, mode:"text", situation:"", voiceMeta:null, result:null};
+  uploadedFile=null;
+  document.querySelectorAll('.opt-btn').forEach(x=>x.classList.remove('selected'));
+  document.querySelectorAll('.mbti-btn').forEach(x=>x.classList.remove('selected'));
+  document.getElementById('toStep1').disabled=true;
+  document.getElementById('toStep2').disabled=true;
+  document.getElementById('relOtherWrap').style.display='none';
+  document.getElementById('relOtherInput').value='';
+  document.getElementById('situationInput').value='';
+  document.getElementById('mediaFile').value='';
+  voiceStatus.textContent='파일을 선택해주세요 (음성 또는 영상)';
+  showScreen('s-home');
+});
+
+function saveHistory(result){
+  try{
+    const key='mindsignal_history';
+    const list = JSON.parse(localStorage.getItem(key)||'[]');
+    const snip = state.mode==='text' ? state.situation : '(음성·영상 파일 분석)';
+    list.unshift({date:new Date().toLocaleString('ko-KR'), mbti:state.mbti, mode:state.mode, situation:snip, relationLabel:result.relationLabel,
+      voiceMeta:result.voiceMeta, mood:result.mood, cause:result.cause, mbtiLink:result.mbtiLink, signal:result.signal, relationTip:result.relationTip, actions:result.actions, strategies:result.strategies});
+    localStorage.setItem(key, JSON.stringify(list.slice(0,50)));
+  }catch(e){ console.error('저장 실패', e); }
+}
+function loadHistory(){
+  const listEl = document.getElementById('histList');
+  listEl.innerHTML='';
+  let list=[];
+  try{ list = JSON.parse(localStorage.getItem('mindsignal_history')||'[]'); }catch(e){}
+  if(list.length===0){ listEl.innerHTML='<div class="empty">아직 저장된 기록이 없어요.</div>'; return; }
+  list.forEach(item=>{
+    const div=document.createElement('div'); div.className='hist-item';
+    const icon = item.mode==='voice' ? '🎧' : '💬';
+    div.innerHTML=`<div class="hist-meta"><span>${icon} ${item.relationLabel||''} · ${item.mbti}</span><span>${item.date}</span></div><div class="hist-snip">${item.situation.slice(0,60)}${item.situation.length>60?'…':''}</div>`;
+    div.addEventListener('click',()=>{ renderResult(item); showScreen('s-4'); });
+    listEl.appendChild(div);
+  });
+}
+document.getElementById('clearHist').addEventListener('click',()=>{
+  localStorage.removeItem('mindsignal_history');
+  loadHistory();
+});
+</script>
 </body>
 </html>
